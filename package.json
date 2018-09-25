@@ -1,0 +1,43 @@
+{
+	"name": "s3-query-json",
+	"version": "0.0.0",
+	"description": "Query JSON files on S3",
+	"main": "dist/src/index.js",
+	"types": "dist/src/index.d.ts",
+	"scripts": {
+		"lint": "tslint -p . --format stylish",
+		"build": "tsc",
+		"test": "npm run lint && npm run build && ava"
+	},
+	"keywords": [
+		"S3",
+		"JSON",
+		"SQL"
+	],
+	"files": [
+		"dist/src/"
+	],
+	"author": "Simon Jang",
+	"license": "MIT",
+	"dependencies": {
+		"rxjs": "^6.3.2"
+	},
+	"devDependencies": {
+		"@types/node": "^10.11.0",
+		"@types/sinon": "^5.0.5",
+		"ava": "^0.25.0",
+		"aws-sdk": "^2.330.0",
+		"sinon": "^6.3.5",
+		"tslint": "^5.11.0",
+		"tslint-xo": "^0.9.0",
+		"typescript": "^3.0.3"
+	},
+	"peerDependencies": {
+		"aws-sdk": "^2.330.0"
+	},
+	"ava": {
+		"files": [
+			"./dist/test/*.js"
+		]
+	}
+}
