@@ -6,7 +6,7 @@
 	"types": "dist/src/index.d.ts",
 	"scripts": {
 		"lint": "tslint -p . --format stylish",
-		"build": "tsc",
+		"build": "tsc -p tsconfig.json",
 		"test": "npm run lint && npm run build && ava"
 	},
 	"keywords": [
@@ -17,7 +17,13 @@
 	"files": [
 		"dist/src/"
 	],
-	"author": "Simon Jang",
+
+	"author": {
+		"name": "Simon Jang",
+		"email": "simon.jang.contact@gmail.com",
+		"url": "github.com/SimonJang"
+	},
+	"repository": "SimonJang/s3-query-json",
 	"license": "MIT",
 	"dependencies": {
 		"rxjs": "^6.3.2"

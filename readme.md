@@ -17,14 +17,14 @@ $ npm install s3-query-json
 ## Usage
 
 ```js
-const query = require('s3-query-json');
+const s3Query = require('s3-query-json');
 
 // As Promise
-query('foobarbaz', 'users.ndjson', {expression: 'SELECT s.name FROM S3Object s', documentType: 'NDJSON', promise: true})
+s3Query.query('foobarbaz', 'users.ndjson', {expression: 'SELECT s.name FROM S3Object s', documentType: 'NDJSON', promise: true})
 	.then(data => console.log(data) // [{"name": "unicorn"}, {"name": "rainbow"}])
 
 // As observable stream
-query('foobarbaz', 'users.ndjson', {expression: 'SELECT s.name FROM S3Object s WHERE s.age > 25', documentType: 'JSON'})
+s3Query.query('foobarbaz', 'users.ndjson', {expression: 'SELECT s.name FROM S3Object s WHERE s.age > 25', documentType: 'JSON'})
 	.pipe(
 		tap(data => console.log(data) // {"name": "unicorn"})
 	)
@@ -64,7 +64,7 @@ Type: `String`
 
 Accept either `JSON` or `NDJSON`
 
-###### [options.promise]
+##### [options.promise]
 
 Type: `Boolean`
 
