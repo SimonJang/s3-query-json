@@ -66,10 +66,16 @@ export const query = async (
 	const {Payload} = (await s3.selectObjectContent(clean(params) as SelectObjectContentRequest).promise()) as any;
 
 	const observable = new Observable(observer => {
-		Payload.on('data', raw => {
-			raw.Records.Payload.toString()
+		Payload.on('data', ({Records}) => {
+			// Records might not be available
+			if (!Records) {
+				return;
+			}
+
+			Records.Payload.toString()
 				.split(delimiter)
 				.map(item => {
+					// Can be an empty string
 					if (!item.trim()) {
 						return;
 					}
