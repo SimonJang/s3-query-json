@@ -1,5 +1,4 @@
 import * as AWS from 'aws-sdk';
-import * as sinon from 'sinon';
 import {FakeStream} from './fake-stream';
 
 const stub: any = AWS;

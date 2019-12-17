@@ -40,7 +40,7 @@ test('should fail on validation', async t => {
 
 test('should return a promise with all the data', async t => {
 	const data = await query('foobarbaz', 'users.ndjson', 'SELECT s.name FROM S3Object s', {
-		documentType: 'NDJSON',
+		documentType: 'JSON',
 		promise: true
 	});
 
@@ -58,9 +58,9 @@ test('should return a promise with all the data', async t => {
 });
 
 test('should return an observable which emits the different values', async t => {
-	const observable = (await query('foobarbaz', 'users.ndjson', 'SELECT s.name FROM S3Object s', {
-		documentType: 'NDJSON'
-	})) as Observable<{name: string}>;
+	const observable = (await query('foobarbaz', 'users.ndjson', 'SELECT s.name FROM S3Object s')) as Observable<{
+		name: string;
+	}>;
 
 	const records = [
 		{
@@ -81,7 +81,6 @@ test('should return an observable which emits the different values', async t => 
 
 test.serial('should scan a specific range of the file on S3', async t => {
 	await query('foobarbaz', 'users.ndjson', 'SELECT s.name FROM S3Object s', {
-		documentType: 'NDJSON',
 		scanRange: {start: '0', end: '50'}
 	});
 

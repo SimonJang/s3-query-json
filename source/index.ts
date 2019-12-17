@@ -28,8 +28,8 @@ export const query = async (
 		ow(
 			opts,
 			'options',
-			ow.object.partialShape({
-				documentType: ow.string.oneOf(Object.keys(DocumentType)),
+			ow.optional.object.nonEmpty.partialShape({
+				documentType: ow.optional.string.oneOf(Object.keys(DocumentType)),
 				scanRange: ow.optional.object.nonEmpty.hasAnyKeys('start', 'end'),
 				promise: ow.optional.boolean
 			})
