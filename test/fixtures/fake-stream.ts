@@ -2,7 +2,7 @@ import {Readable} from 'stream';
 
 const data = [
 	{
-		name: 'Foo',
+		name: 'Foo'
 	},
 	{
 		name: 'Bar'

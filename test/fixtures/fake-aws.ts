@@ -1,5 +1,6 @@
-import {FakeStream} from './fake-stream';
 import * as AWS from 'aws-sdk';
+import * as sinon from 'sinon';
+import {FakeStream} from './fake-stream';
 
 const stub: any = AWS;
 
@@ -21,6 +22,7 @@ class S3 {
 
 export const s3 = new S3();
 
-stub.S3 = function () { // tslint:disable-line
+stub.S3 = function() {
+	// tslint:disable-line
 	return s3;
 };
