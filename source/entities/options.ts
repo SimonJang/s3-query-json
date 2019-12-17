@@ -12,7 +12,7 @@ export interface Options {
 	/**
 	 * Document type of the S3 Object: Either `JSON` or `NDJSON`
 	 */
-	documentType: 'JSON' | 'NDJSON';
+	documentType?: 'JSON' | 'NDJSON';
 	/**
 	 * Flag to indicate if a Promise or Observable needs to be returned
 	 */

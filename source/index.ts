@@ -48,6 +48,7 @@ export const query = async (
 		ExpressionType: 'SQL',
 		InputSerialization: {
 			JSON: {
+				// Default to LINES // NDJSON since it is optional
 				Type: opts.documentType === DocumentType.JSON ? 'DOCUMENT' : 'LINES'
 			}
 		},
