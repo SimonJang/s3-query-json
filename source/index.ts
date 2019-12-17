@@ -1,9 +1,9 @@
 import * as AWS from 'aws-sdk';
+import {SelectObjectContentRequest, ScanRange} from 'aws-sdk/clients/s3';
 import ow from 'ow';
 import {Observable} from 'rxjs';
 import * as clean from 'obj-clean';
 import {Options, DocumentType} from './entities';
-import {SelectObjectContentRequest, ScanRange} from 'aws-sdk/clients/s3';
 
 const delimiter = ';';
 
@@ -69,6 +69,10 @@ export const query = async (
 			raw.Records.Payload.toString()
 				.split(delimiter)
 				.map(item => {
+					if (!item.trim()) {
+						return;
+					}
+
 					if (opts.promise) {
 						container.push(JSON.parse(item));
 
@@ -85,13 +89,12 @@ export const query = async (
 
 		Payload.on('end', () => {
 			if (opts.promise) {
-				observer.next(container as any);
+				observer.next(container);
 			}
 
 			observer.complete();
 		});
 
-		// tslint:disable-next-line:typedef
 		return () => {
 			Payload.destroy();
 		};
