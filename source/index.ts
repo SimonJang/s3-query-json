@@ -1,11 +1,33 @@
-import * as AWS from 'aws-sdk';
+import {S3} from 'aws-sdk';
 import {SelectObjectContentRequest, ScanRange} from 'aws-sdk/clients/s3';
-import ow from 'ow';
-import {Observable} from 'rxjs';
-import * as clean from 'obj-clean';
 import {Options, DocumentType, CompressionType} from './entities';
 
-const delimiter = ';';
+function assertIsString(input: any, errorMessage: string): asserts input is string {
+	if (typeof input === 'string') {
+		return;
+	}
+
+	throw Error(errorMessage);
+}
+
+function optionalIn<T>(input: any | any[], collection: T[], errorMessage: string): asserts input is T {
+	const validationSet = Array.isArray(input) ? input : [input];
+	for (const item of validationSet) {
+		if (item === undefined || collection.some(record => item === record)) {
+			continue;
+		}
+
+		throw Error(errorMessage);
+	}
+}
+
+function assert(statement: boolean, errorMessage): asserts statement is true {
+	if (statement) {
+		return;
+	}
+
+	throw Error(errorMessage);
+}
 
 /**
  * Query a JSON file on S3 with a specific SQL expression
@@ -15,48 +37,41 @@ const delimiter = ';';
  * @param key - SQL expression to execute
  * @param opts - Specific options
  */
-export const query = async (
+export const query = async <T>(
 	bucket: string,
 	key: string,
 	expression: string,
-	opts: Options = {documentType: DocumentType.NDJSON, compressionType: 'NONE'}
-): Promise<unknown> => {
-	try {
-		ow(bucket, 'bucket', ow.string.nonEmpty);
-		ow(key, 'key', ow.string.nonEmpty);
-		ow(expression, 'expression', ow.string.nonEmpty);
-		ow(
-			opts,
-			'options',
-			ow.optional.object.nonEmpty.partialShape({
-				documentType: ow.optional.string.oneOf(Object.keys(DocumentType)),
-				compressionType: ow.optional.string.oneOf(Object.keys(CompressionType)),
-				scanRange: ow.optional.object.nonEmpty.hasAnyKeys('start', 'end'),
-				promise: ow.optional.boolean
-			})
-		);
-	} catch (err) {
-		throw err;
-	}
+	opts: Options = {documentType: DocumentType.NDJSON, compressionType: 'NONE', delimiter: '\n'}
+): Promise<T[]> => {
+	assertIsString(bucket, `Bucket \`${bucket}\` should be a string`);
+	assertIsString(key, `Key \`${key}\` should be a string`);
+	assertIsString(expression, `Expression \`${expression}\` should be a string`);
+	assertIsString(opts.delimiter, `Delimiter \`${opts.delimiter}\` should be a string`);
+	assert(opts.delimiter.length === 1, `Delimiter must have length \`1\`, found ${opts.delimiter.length}`);
+	optionalIn(opts.documentType, Object.keys(DocumentType), `Unknown documentType \`${opts.documentType}\``);
+	optionalIn(opts.compressionType, Object.keys(CompressionType), `Unknown compressionType \`${opts.compressionType}\``);
+	optionalIn(
+		Object.keys(opts.scanRange || {}),
+		['start', 'end'],
+		`In ScanRange only \`start\` and \`end\` are allowed, got ${JSON.stringify(opts.scanRange)}`
+	);
 
-	const s3 = new AWS.S3();
-	const container: any[] = [];
+	const s3 = new S3();
 
-	const params: SelectObjectContentRequest = {
+	const request: SelectObjectContentRequest = {
 		Bucket: bucket,
 		Key: key,
 		Expression: expression,
 		ExpressionType: 'SQL',
 		InputSerialization: {
 			JSON: {
-				// Default to LINES // NDJSON since it is optional
 				Type: opts.documentType === DocumentType.JSON ? 'DOCUMENT' : 'LINES'
 			},
 			CompressionType: opts.compressionType || CompressionType.NONE
 		},
 		OutputSerialization: {
 			JSON: {
-				RecordDelimiter: delimiter
+				RecordDelimiter: opts.delimiter
 			}
 		},
 		ScanRange: {
@@ -65,53 +80,30 @@ export const query = async (
 		} as ScanRange
 	};
 
-	const {Payload} = (await s3.selectObjectContent(clean(params) as SelectObjectContentRequest).promise()) as any;
+	const {Payload} = (await s3.selectObjectContent(request).promise()) as any;
 
-	const observable = new Observable(observer => {
-		Payload.on('data', ({Records}) => {
-			// Records might not be available
-			if (!Records) {
-				return;
-			}
-
-			Records.Payload.toString()
-				.split(delimiter)
-				.map(item => {
-					// Can be an empty string
-					if (!item.trim()) {
-						return;
-					}
-
-					if (opts.promise) {
-						container.push(JSON.parse(item));
-
-						return;
-					}
-
-					observer.next(JSON.parse(item));
-				});
-		});
-
-		Payload.on('error', err => {
-			observer.error(err);
-		});
-
-		Payload.on('end', () => {
-			if (opts.promise) {
-				observer.next(container);
-			}
-
-			observer.complete();
-		});
-
-		return () => {
-			Payload.destroy();
-		};
-	});
-
-	if (opts.promise) {
-		return observable.toPromise();
+	if (!Payload) {
+		throw Error('No response from s3');
 	}
 
-	return observable;
+	const container: T[] = [];
+	let data = '';
+
+	for await (const {Records} of Payload) {
+		if (!Records) {
+			continue;
+		}
+
+		data += Records.Payload.toString();
+	}
+
+	for (const record of data.split(opts.delimiter || '\n')) {
+		if (!record.trim()) {
+			continue;
+		}
+
+		container.push(JSON.parse(record));
+	}
+
+	return container;
 };

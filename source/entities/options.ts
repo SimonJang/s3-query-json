@@ -26,7 +26,7 @@ export interface Options {
 	/**
 	 * Flag to indicate if a Promise or Observable needs to be returned
 	 */
-	promise?: boolean;
+	delimiter?: string;
 	/**
 	 * Allow to scan specified ranges of the file
 	 */
