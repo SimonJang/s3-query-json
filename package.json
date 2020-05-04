@@ -1,6 +1,6 @@
 {
 	"name": "s3-query-json",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Query (ND)JSON files on S3",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
