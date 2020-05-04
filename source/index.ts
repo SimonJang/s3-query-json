@@ -3,7 +3,7 @@ import {SelectObjectContentRequest, ScanRange} from 'aws-sdk/clients/s3';
 import ow from 'ow';
 import {Observable} from 'rxjs';
 import * as clean from 'obj-clean';
-import {Options, DocumentType} from './entities';
+import {Options, DocumentType, CompressionType} from './entities';
 
 const delimiter = ';';
 
@@ -19,7 +19,7 @@ export const query = async (
 	bucket: string,
 	key: string,
 	expression: string,
-	opts: Options = {documentType: DocumentType.NDJSON}
+	opts: Options = {documentType: DocumentType.NDJSON, compressionType: 'NONE'}
 ): Promise<unknown> => {
 	try {
 		ow(bucket, 'bucket', ow.string.nonEmpty);
@@ -30,6 +30,7 @@ export const query = async (
 			'options',
 			ow.optional.object.nonEmpty.partialShape({
 				documentType: ow.optional.string.oneOf(Object.keys(DocumentType)),
+				compressionType: ow.optional.string.oneOf(Object.keys(CompressionType)),
 				scanRange: ow.optional.object.nonEmpty.hasAnyKeys('start', 'end'),
 				promise: ow.optional.boolean
 			})
@@ -50,7 +51,8 @@ export const query = async (
 			JSON: {
 				// Default to LINES // NDJSON since it is optional
 				Type: opts.documentType === DocumentType.JSON ? 'DOCUMENT' : 'LINES'
-			}
+			},
+			CompressionType: opts.compressionType || CompressionType.NONE
 		},
 		OutputSerialization: {
 			JSON: {

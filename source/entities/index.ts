@@ -1,1 +1,1 @@
-export * from './options';
+export {CompressionType, DocumentType, Options} from './options';

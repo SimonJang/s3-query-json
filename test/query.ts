@@ -92,7 +92,8 @@ test.serial('should scan a specific range of the file on S3', async t => {
 		InputSerialization: {
 			JSON: {
 				Type: 'LINES'
-			}
+			},
+			CompressionType: 'NONE'
 		},
 		OutputSerialization: {
 			JSON: {

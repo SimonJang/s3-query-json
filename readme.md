@@ -65,6 +65,13 @@ Default: `NDJSON`
 
 Accepts either `JSON` or `NDJSON` as input.
 
+##### [options.compressionType]
+
+Type: `String`
+Default: `NONE`
+
+Compression used in the S3 object. Either `NONE`, `GZIP` or `BZIP2`
+
 ##### [options.promise]
 
 Type: `Boolean`
