@@ -33,6 +33,7 @@
 	"repository": "SimonJang/s3-query-json",
 	"license": "MIT",
 	"dependencies": {
+		"obj-clean": "^3.0.1",
 		"ow": "^0.15.0",
 		"rxjs": "^6.5.3"
 	},
@@ -44,7 +45,6 @@
 		"aws-sdk": "^2.590.0",
 		"del-cli": "^3.0.0",
 		"nyc": "^14.1.1",
-		"obj-clean": "^3.0.1",
 		"prettier": "^1.19.1",
 		"sinon": "^6.3.5",
 		"ts-node": "^8.5.4",
