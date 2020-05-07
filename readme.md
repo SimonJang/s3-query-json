@@ -4,7 +4,7 @@
 
 ## About
 
-The `selectObjectContent` [API](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#selectObjectContent-property) allows to easily query JSON and NDJSON data from S3. This node module provides a wrapper for this method, exposing the data as an aggregated result as Promise or as an Observable stream of the same data using the RxJS library.
+The `selectObjectContent` [API](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#selectObjectContent-property) allows to easily query JSON and NDJSON data from S3. This node module provides a wrapper for this method, exposing the data as an aggregated result as a Promise.
 
 See the official AWS [docs](https://docs.aws.amazon.com/amazonglacier/latest/dev/s3-glacier-select-sql-reference-select.html) for more information.
 
@@ -17,17 +17,13 @@ $ npm install s3-query-json
 ## Usage
 
 ```js
-const s3Query = require('s3-query-json');
+const {query} = require('s3-query-json');
 
-// As Promise with all the configuration options
-s3Query.query('foobarbaz', 'users.ndjson', 'SELECT s.name FROM S3Object s', {documentType: 'NDJSON', promise: true, scanRange: {start: 1, end: 100}})
+query('foobarbaz', 'users.ndjson', 'SELECT s.name FROM S3Object s')
 	.then(data => console.log(data) // [{"name": "unicorn"}, {"name": "rainbow"}])
 
-// As observable stream without configuration options
-s3Query.query('foobarbaz', 'users.ndjson', 'SELECT s.name FROM S3Object s WHERE s.age > 25')
-	.pipe(
-		tap(data => console.log(data) // {"name": "unicorn"})
-	)
+query('foobarbaz', 'users.ndjson', 'SELECT s.name FROM S3Object s', {documentType: 'NDJSON', compressionType: 'GZIP', stream: false, delimiter: '\n', scanRange: {start: 1, end: 100}})
+	.then(data => console.log(data) // [{"name": "unicorn"}, {"name": "rainbow"}])
 ```
 
 ## API
@@ -72,12 +68,19 @@ Default: `NONE`
 
 Compression used in the S3 object. Either `NONE`, `GZIP` or `BZIP2`
 
-##### [options.promise]
+##### [options.stream]
 
 Type: `Boolean`
 Default: `false`
 
-Flag to indicate the preferred return type. Without the `promise` flag, an Observable is returned. Otherwise a Promise will return all the data at once.
+Flag to indicate if the function returns a Promise with a original readstream. This allows custom processing.
+
+##### [options.delimiter]
+
+Type: `string`
+Default: `\n`
+
+Delimiter with **a maximum length of 1** to separate the records that are being returned. To avoid difficult parsing, use a delimiter with no collision with the records returned.
 
 ##### [options.scanRange]
 
@@ -88,13 +91,13 @@ This property can only be used with non-compressed NDJSON and Parquet files. All
 
 ##### [options.scanRange.start]
 
-Type: `String`
+Type: `Number`
 
 Inclusive start of the range. Starts from 0
 
 ##### [options.scanRange.end]
 
-Type: `String`
+Type: `Number`
 
 Inclusive end of the range. This is allowed to be out of bound of the object size.
 
