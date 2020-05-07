@@ -80,30 +80,42 @@ export const query = async <T>(
 		} as ScanRange
 	};
 
-	const {Payload} = (await s3.selectObjectContent(request).promise()) as any;
+	let result: any;
 
-	if (!Payload) {
-		throw Error('No response from s3');
+	try {
+		const {Payload} = await s3.selectObjectContent(request).promise();
+		result = Payload;
+	} catch (err) {
+		return Promise.reject(err);
 	}
 
-	const container: T[] = [];
-	let data = '';
-
-	for await (const {Records} of Payload) {
-		if (!Records) {
-			continue;
-		}
-
-		data += Records.Payload.toString();
+	if (opts.stream === true) {
+		return result;
 	}
 
-	for (const record of data.split(opts.delimiter || '\n')) {
-		if (!record.trim()) {
-			continue;
-		}
+	return new Promise((resolve, reject) => {
+		let data = '';
 
-		container.push(JSON.parse(record));
-	}
+		result.on('data', ({Records}) => {
+			if (!Records) {
+				return;
+			}
 
-	return container;
+			data += Records.Payload.toString();
+		});
+		result.on('error', err => reject(err));
+		result.on('end', () => {
+			const results: any[] = [];
+
+			for (const record of data.split(opts.delimiter || '\n')) {
+				if (!record.trim()) {
+					continue;
+				}
+
+				results.push(JSON.parse(record));
+			}
+
+			resolve(results);
+		});
+	});
 };

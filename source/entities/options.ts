@@ -31,4 +31,5 @@ export interface Options {
 	 * Allow to scan specified ranges of the file
 	 */
 	scanRange?: RequireAtLeastOne<{start: string; end: string}, 'start' | 'end'>;
+	stream?: boolean;
 }
