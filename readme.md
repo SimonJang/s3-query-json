@@ -6,7 +6,7 @@
 
 The `selectObjectContent` [API](https://docs.aws.amazon.com/AWSJavaScriptSDK/latest/AWS/S3.html#selectObjectContent-property) allows to easily query JSON and NDJSON data from S3. This node module provides a wrapper for this method, exposing the data as an aggregated result as a Promise.
 
-See the official AWS [docs](https://docs.aws.amazon.com/amazonglacier/latest/dev/s3-glacier-select-sql-reference-select.html) for more information.
+See the official AWS [documentation](https://docs.aws.amazon.com/amazonglacier/latest/dev/s3-glacier-select-sql-reference-select.html) for more information.
 
 ## Install
 
