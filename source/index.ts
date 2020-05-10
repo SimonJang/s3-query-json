@@ -1,41 +1,15 @@
 import {S3} from 'aws-sdk';
 import {SelectObjectContentRequest, ScanRange} from 'aws-sdk/clients/s3';
 import {Options, DocumentType, CompressionType} from './entities';
-
-function assertIsString(input: any, errorMessage: string): asserts input is string {
-	if (typeof input === 'string') {
-		return;
-	}
-
-	throw Error(errorMessage);
-}
-
-function optionalIn<T>(input: any | any[], collection: T[], errorMessage: string): asserts input is T {
-	const validationSet = Array.isArray(input) ? input : [input];
-	for (const item of validationSet) {
-		if (item === undefined || collection.some(record => item === record)) {
-			continue;
-		}
-
-		throw Error(errorMessage);
-	}
-}
-
-function assert(statement: boolean, errorMessage): asserts statement is true {
-	if (statement) {
-		return;
-	}
-
-	throw Error(errorMessage);
-}
+import {assertIsString, assert, optionalIn} from './asserts';
 
 /**
  * Query a JSON file on S3 with a specific SQL expression
  *
  * @param bucket - Name of the S3 bucket.
  * @param key - Name of the S3 JSON document
- * @param key - SQL expression to execute
- * @param opts - Specific options
+ * @param expression - SQL expression to execute
+ * @param opts - Additional configuration.
  */
 export const query = async <T>(
 	bucket: string,
