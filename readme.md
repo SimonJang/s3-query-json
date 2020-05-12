@@ -73,7 +73,7 @@ Compression used in the S3 object. Either `NONE`, `GZIP` or `BZIP2`
 Type: `Boolean`
 Default: `false`
 
-Flag to indicate if the function returns a Promise with a original readstream. This allows custom processing.
+Flag to indicate if the function returns a Promise with a original readstream. This allows more advanced custom processing.
 
 ##### [options.delimiter]
 
@@ -87,7 +87,7 @@ Delimiter with **a maximum length of 1** to separate the records that are being 
 Type: `Object`
 Default: `undefined`
 
-This property can only be used with non-compressed NDJSON and Parquet files. Allows to scan a specified range of bytes. See the [documentation](https://docs.aws.amazon.com/AmazonS3/latest/API/API_SelectObjectContent.html#AmazonS3-SelectObjectContent-request-ScanRange) for more information. When `scanRange` is provided, atleast one of keys `start` or `end` must be provided.
+This property can only be used with non-compressed (ND)JSON files. Allows to scan a specified range of bytes. See the [documentation](https://docs.aws.amazon.com/AmazonS3/latest/API/API_SelectObjectContent.html#AmazonS3-SelectObjectContent-request-ScanRange) for more information. When `scanRange` is provided, atleast one of keys `start` or `end` must be provided.
 
 ##### [options.scanRange.start]
 
