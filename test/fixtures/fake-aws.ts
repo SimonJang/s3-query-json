@@ -1,27 +1,31 @@
-import * as AWS from 'aws-sdk';
+import {SelectObjectContentRequest} from 'aws-sdk/clients/s3';
 import {FakeStream} from './fake-stream';
 
-const stub: any = AWS;
+const AWS = require('aws-sdk');
 
 class S3 {
-	selectObjectContent(args) {
+	calls: SelectObjectContentRequest[] = [];
+
+	selectObjectContent(args: SelectObjectContentRequest) {
+		this.calls.push(args);
+
 		const {
 			OutputSerialization: {
-				JSON: {RecordDelimiter}
-			}
+				JSON: {RecordDelimiter},
+			},
 		} = args;
 
 		const mockStream = new FakeStream(RecordDelimiter);
 
 		return {
-			promise: async () => Promise.resolve({Payload: mockStream})
+			promise: async () => Promise.resolve({Payload: mockStream}),
 		};
 	}
 }
 
 export const s3 = new S3();
 
-stub.S3 = function() {
+AWS.S3 = function () {
 	// tslint:disable-line
 	return s3;
 };

@@ -4,13 +4,21 @@
 	"description": "Query (ND)JSON files on S3",
 	"main": "lib/index.js",
 	"types": "lib/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./lib/index.d.ts",
+			"require": "./lib/index.js",
+			"default": "./lib/index.js"
+		}
+	},
+	"packageManager": "npm@11.11.0",
 	"scripts": {
-		"lint": "tslint -p . --format stylish",
-		"format": "prettier --write \"source/**/*.ts\" \"test/**/*.ts\" \"lib/**/*.js\"",
+		"format": "prettier --write \"source/**/*.ts\" \"test/**/*.ts\"",
 		"build": "npm run clean && tsc -p tsconfig.json",
-		"test": "npm run format && npm run lint && nyc ava",
-		"clean": "del-cli lib",
-		"prepare": "npm run test && npm run build",
+		"test": "npm run build && node --import tsx --test test/query.ts",
+		"clean": "node -e \"require('node:fs').rmSync('lib',{recursive:true,force:true})\"",
+		"prepare": "npm run build",
+		"prepack": "npm test",
 		"deploy": "npm run prepare && npx np"
 	},
 	"keywords": [
@@ -20,7 +28,7 @@
 		"SQL"
 	],
 	"engines": {
-		"node": ">=8"
+		"node": ">=22"
 	},
 	"files": [
 		"lib"
@@ -34,40 +42,13 @@
 	"license": "MIT",
 	"dependencies": {},
 	"devDependencies": {
-		"@istanbuljs/nyc-config-typescript": "^0.1.3",
-		"@types/node": "^10.17.9",
-		"@types/sinon": "^5.0.7",
-		"ava": "^2.4.0",
-		"aws-sdk": "^2.590.0",
-		"del-cli": "^3.0.0",
-		"nyc": "^14.1.1",
-		"ow": "^0.17.0",
-		"prettier": "^1.19.1",
-		"sinon": "^6.3.5",
-		"ts-node": "^8.5.4",
-		"tslint": "^5.20.1",
-		"tslint-config-prettier": "^1.18.0",
-		"tslint-xo": "^0.9.0",
-		"typescript": "^3.7.3",
-		"xo": "^0.25.3"
+		"@types/node": "^26.0.0",
+		"aws-sdk": "^2.1693.0",
+		"prettier": "^3.8.4",
+		"tsx": "^4.22.4",
+		"typescript": "^6.0.3"
 	},
 	"peerDependencies": {
 		"aws-sdk": "^2.330.0"
-	},
-	"nyc": {
-		"extends": "@istanbuljs/nyc-config-typescript"
-	},
-	"ava": {
-		"babel": false,
-		"compileEnhancements": false,
-		"extensions": [
-			"ts"
-		],
-		"require": [
-			"ts-node/register"
-		],
-		"files": [
-			"test/query.ts"
-		]
 	}
 }
