@@ -15,19 +15,30 @@ export const query = async <T>(
 	bucket: string,
 	key: string,
 	expression: string,
-	opts: Options = {documentType: DocumentType.NDJSON, compressionType: 'NONE', delimiter: '\n'}
+	opts: Options = {documentType: DocumentType.NDJSON, compressionType: 'NONE', delimiter: '\n'},
 ): Promise<T[]> => {
+	const options: Options = {
+		documentType: DocumentType.NDJSON,
+		compressionType: CompressionType.NONE,
+		delimiter: '\n',
+		...opts,
+	};
+
 	assertIsString(bucket, `Bucket \`${bucket}\` should be a string`);
 	assertIsString(key, `Key \`${key}\` should be a string`);
 	assertIsString(expression, `Expression \`${expression}\` should be a string`);
-	assertIsString(opts.delimiter, `Delimiter \`${opts.delimiter}\` should be a string`);
-	assert(opts.delimiter.length === 1, `Delimiter must have length \`1\`, found ${opts.delimiter.length}`);
-	optionalIn(opts.documentType, Object.keys(DocumentType), `Unknown documentType \`${opts.documentType}\``);
-	optionalIn(opts.compressionType, Object.keys(CompressionType), `Unknown compressionType \`${opts.compressionType}\``);
+	assertIsString(options.delimiter, `Delimiter \`${options.delimiter}\` should be a string`);
+	assert(options.delimiter.length === 1, `Delimiter must have length \`1\`, found ${options.delimiter.length}`);
+	optionalIn(options.documentType, Object.keys(DocumentType), `Unknown documentType \`${options.documentType}\``);
 	optionalIn(
-		Object.keys(opts.scanRange || {}),
+		options.compressionType,
+		Object.keys(CompressionType),
+		`Unknown compressionType \`${options.compressionType}\``,
+	);
+	optionalIn(
+		Object.keys(options.scanRange || {}),
 		['start', 'end'],
-		`In ScanRange only \`start\` and \`end\` are allowed, got ${JSON.stringify(opts.scanRange)}`
+		`In ScanRange only \`start\` and \`end\` are allowed, got ${JSON.stringify(options.scanRange)}`,
 	);
 
 	const s3 = new S3();
@@ -39,19 +50,23 @@ export const query = async <T>(
 		ExpressionType: 'SQL',
 		InputSerialization: {
 			JSON: {
-				Type: opts.documentType === DocumentType.JSON ? 'DOCUMENT' : 'LINES'
+				Type: options.documentType === DocumentType.JSON ? 'DOCUMENT' : 'LINES',
 			},
-			CompressionType: opts.compressionType || CompressionType.NONE
+			CompressionType: options.compressionType || CompressionType.NONE,
 		},
 		OutputSerialization: {
 			JSON: {
-				RecordDelimiter: opts.delimiter
-			}
+				RecordDelimiter: options.delimiter,
+			},
 		},
-		ScanRange: {
-			Start: opts.scanRange?.start,
-			End: opts.scanRange?.end
-		} as ScanRange
+		...(options.scanRange
+			? {
+					ScanRange: {
+						Start: options.scanRange.start,
+						End: options.scanRange.end,
+					} as ScanRange,
+				}
+			: {}),
 	};
 
 	let result: any;
@@ -63,7 +78,7 @@ export const query = async <T>(
 		return Promise.reject(err);
 	}
 
-	if (opts.stream === true) {
+	if (options.stream === true) {
 		return result;
 	}
 
@@ -77,11 +92,11 @@ export const query = async <T>(
 
 			data += Records.Payload.toString();
 		});
-		result.on('error', err => reject(err));
+		result.on('error', (err) => reject(err));
 		result.on('end', () => {
 			const results: any[] = [];
 
-			for (const record of data.split(opts.delimiter || '\n')) {
+			for (const record of data.split(options.delimiter || '\n')) {
 				if (!record.trim()) {
 					continue;
 				}

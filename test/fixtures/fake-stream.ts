@@ -2,14 +2,14 @@ import {Readable} from 'stream';
 
 const data = [
 	{
-		name: 'Foo'
+		name: 'Foo',
 	},
 	{
-		name: 'Bar'
+		name: 'Bar',
 	},
 	{
-		name: 'Foo'
-	}
+		name: 'Foo',
+	},
 ];
 
 export class FakeStream extends Readable {
@@ -28,8 +28,8 @@ export class FakeStream extends Readable {
 
 			return this.push({
 				Records: {
-					Payload: Buffer.from(data.map(item => JSON.stringify(item)).join(this.delimiter))
-				}
+					Payload: Buffer.from(data.map((item) => JSON.stringify(item)).join(this.delimiter)),
+				},
 			});
 		}
 

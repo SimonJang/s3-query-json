@@ -9,7 +9,7 @@ export function assertIsString(input: any, errorMessage: string): asserts input 
 export function optionalIn<T>(input: any | any[], collection: T[], errorMessage: string): asserts input is T {
 	const validationSet = Array.isArray(input) ? input : [input];
 	for (const item of validationSet) {
-		if (item === undefined || collection.some(record => item === record)) {
+		if (item === undefined || collection.some((record) => item === record)) {
 			continue;
 		}
 
@@ -17,7 +17,7 @@ export function optionalIn<T>(input: any | any[], collection: T[], errorMessage:
 	}
 }
 
-export function assert(statement: boolean, errorMessage): asserts statement is true {
+export function assert(statement: boolean, errorMessage: string): asserts statement is true {
 	if (statement) {
 		return;
 	}

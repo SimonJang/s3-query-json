@@ -1,12 +1,12 @@
 export enum DocumentType {
 	JSON = 'JSON',
-	NDJSON = 'NDJSON'
+	NDJSON = 'NDJSON',
 }
 
 export enum CompressionType {
 	NONE = 'NONE',
 	GZIP = 'GZIP',
-	BZIP2 = 'BZIP2'
+	BZIP2 = 'BZIP2',
 }
 
 type RequireAtLeastOne<T, Keys extends keyof T = keyof T> = Pick<T, Exclude<keyof T, Keys>> &
@@ -30,6 +30,6 @@ export interface Options {
 	/**
 	 * Allow to scan specified ranges of the file
 	 */
-	scanRange?: RequireAtLeastOne<{start: string; end: string}, 'start' | 'end'>;
+	scanRange?: RequireAtLeastOne<{start: number | string; end: number | string}, 'start' | 'end'>;
 	stream?: boolean;
 }
